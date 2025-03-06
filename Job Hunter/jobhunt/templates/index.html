@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Jobhunt</title> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style> 
+        body { font-family: 'Roboto', sans-serif; } 
+        .category-card { transition: transform 0.3s ease, box-shadow 0.3s ease; } 
+        .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); } 
+    </style> 
+</head> 
+
+<body class="bg-gray-100"> 
+    <!-- Header -->
+    <header class="bg-gray-900 text-white py-4"> 
+        <div class="container mx-auto flex justify-between items-center"> 
+            <div class="text-2xl font-bold">Job Summarizer</div> 
+            <nav class="space-x-4"> 
+                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a> 
+                <a href="#" class="hover:text-gray-400">Employers</a> 
+                <a href="#" class="hover:text-gray-400">Jobseekers</a> 
+                <a href="#" class="hover:text-gray-400">Blog</a> 
+                <a href="#" class="hover:text-gray-400">Contact</a> 
+            </nav> 
+            <div class="space-x-4"> 
+                
+                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
+                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a> 
+            </div> 
+        </div> 
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-cover bg-center h-screen" style="background-image: url('{{ url_for('static', filename='css/images/js/bg.jpeg') }}');">
+        <div class="absolute inset-0 bg-blue-900 opacity-75"></div>
+        <div class="container mx-auto relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">The Easiest Way to Get Your New Job</h1>
+            <p class="text-lg mb-8">Find Jobs, Employment & Career Opportunities</p>
+            <div class="bg-white rounded-lg p-8 shadow-lg flex flex-col items-center space-y-4">
+                <i class="fas fa-file-pdf text-6xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800">Upload Your Resume</h3>
+                <p class="text-gray-600 mb-4">Upload your resume in PDF format to get started.</p>
+                <form id="uploadForm" action="{{ url_for('upload_resume') }}" method="POST" enctype="multipart/form-data">
+                    <label for="file-upload" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer">
+                        Upload PDF
+                        <input id="file-upload" type="file" name="resume" class="hidden" accept=".pdf" onchange="submitForm()">
+                    </label>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8">Popular Categories</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {% for category in categories %}
+                    <div class="category-card flex flex-col items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
+                        <i class="{{ category.icon_class }} text-4xl text-blue-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold">{{ category.name }}</h3>
+                        <p class="text-gray-500">{{ category.open_positions }} Open Positions</p>
+                    </div>
+                {% endfor %}
+            </div>
+           
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="py-16 bg-blue-900 text-white text-center">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold mb-4">Make a Difference with Your Online Resume!</h2>
+            <p class="mb-8">Your resume in minutes with Jobhunt resume assistant is ready!</p>
+            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Make you Resume</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 bg-gray-900 text-white text-center">
+        <div class="container mx-auto">
+            <p>&copy; 2025 JobSummariser. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function submitForm() {
+            document.getElementById('uploadForm').submit();
+        }
+    </script>
+</body> 
+</html>

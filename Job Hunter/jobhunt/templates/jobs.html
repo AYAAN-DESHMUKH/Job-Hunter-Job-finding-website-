@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Listings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-gray-900 text-white py-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-2xl font-bold">Job Summarizer</div>
+            <nav class="space-x-4">
+                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a>
+                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
+                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Job Listings -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8">Job Listings</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {% for job in job_data %}
+                    <a href="{{ job.link }}" target="_blank" class="category-card flex flex-col items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
+                        <i class="fas fa-briefcase text-4xl text-blue-500 mb-4"></i>
+                        <h3 class="text-xl font-semibold">{{ job.name }}</h3>
+                        <p class="text-gray-500">{{ job.location }}</p>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 bg-gray-900 text-white text-center">
+        <div class="container mx-auto">
+            <p>&copy; 2025 JobSummariser. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
