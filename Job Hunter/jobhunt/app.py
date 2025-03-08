@@ -88,34 +88,6 @@ def show_jobs():
     else:
         return redirect(url_for('home'))
 
-def scrape_timesjob(keyword):
-    options = Options()
-    options.add_argument("--headless")  # Run in headless mode
-    service = Service()  # Use the default GeckoDriver service
-    driver = webdriver.Firefox(service=service, options=options)
-    
-    driver.get(f"https://m.timesjobs.com/jobskill/{keyword}-jobs")
-    
-    # Wait for job cards to load
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.ui-link"))
-    )
-
-    naukri_name = driver.find_elements(By.CSS_SELECTOR, "a.ui-link")
-    naukri_location = driver.find_elements(By.CSS_SELECTOR, "div.srp-loc")
-    
-    jobs = []
-    for name, location in zip(naukri_name[:5], naukri_location[:5]):  
-        jobs.append({
-            "name": name.text, 
-            "location": location.text, 
-            "link": name.get_attribute("href")  # Extract the href attribute
-        })
-    
-    driver.quit()
-    return jobs
-
-
 
 def scrape_naukri(keyword):
     options = Options()
