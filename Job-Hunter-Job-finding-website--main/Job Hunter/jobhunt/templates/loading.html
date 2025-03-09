@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex justify-center items-center h-screen bg-gray-100">
+    <div class="flex flex-col items-center">
+        <!-- Updated Loader with Blue Colors -->
+        <div
+            class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#1e40af_0deg,#1e40af_180deg,transparent_180deg,transparent_360deg)]"
+        >
+            <span
+                class="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#60a5fa_0deg,#60a5fa_180deg,transparent_180deg,transparent_360deg)]"
+            >
+            </span>
+        </div>
+        <!-- Text -->
+        <p class="mt-4 text-xl font-semibold text-gray-700">Please wait while we find jobs according to your skills...</p>
+    </div>
+
+    <script>
+        // Check scraping status every 2 seconds
+        function checkScrapingStatus() {
+            fetch("/scraping_status")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "complete") {
+                        // Redirect to jobs.html when scraping is complete
+                        window.location.href = "/jobs";
+                    } else {
+                        // Check again after 2 seconds
+                        setTimeout(checkScrapingStatus, 2000);
+                    }
+                });
+        }
+
+        // Start checking scraping status
+        checkScrapingStatus();
+    </script>
+</body>
+</html>

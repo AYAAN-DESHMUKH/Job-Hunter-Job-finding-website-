@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Seekers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-gray-900 text-white py-4"> 
+        <div class="container mx-auto flex justify-between items-center"> 
+            <div class="text-2xl font-bold">Job Summarizer</div> 
+            <nav class="space-x-4"> 
+                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a> 
+                <a href="#" class="hover:text-gray-400">Employers</a> 
+                <a href="{{ url_for('Jobseekers') }}" class="hover:text-gray-400">Jobseekers</a> 
+                <a href="{{ url_for('Blog') }}" class="hover:text-gray-400">Blog</a> 
+                <a href="{{ url_for('contact') }}" class="hover:text-gray-400">Contact</a> 
+            </nav> 
+            <div class="space-x-4"> 
+                
+                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
+                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a> 
+            </div> 
+        </div> 
+    </header>
+    <!-- Hero Section -->
+    <section class="relative bg-cover bg-center h-96 flex items-center justify-center text-center text-white"
+        style="background-image: url('{{ url_for('static', filename='css/images/js/bg.jpeg') }}');">
+        <div class="absolute inset-0 bg-blue-900 opacity-70"></div>
+        <div class="relative z-10">
+            <h1 class="text-4xl font-bold">Find Your Dream Job Today</h1>
+            <p class="text-lg mt-4 mb-8">Upload your resume and explore job opportunities that match your skills.</p>
+            <a href="{{ url_for('upload_resume') }}" class="mt-10 bg-red-500 px-6 py-3 rounded-lg text-white hover:bg-red-600">
+                Upload Resume
+            </a>
+        </div>
+    </section>
+
+    <!-- Resume Tools -->
+    <section class="container mx-auto py-12 px-6 text-center">
+        <h2 class="text-2xl font-bold mb-4">Improve Your Resume</h2>
+        <p class="text-lg max-w-2xl mx-auto">Use our AI-powered resume builder to craft a professional resume that stands out.</p>
+        <a href="#" class="mt-4 inline-block bg-blue-600 px-6 py-3 rounded-lg text-white hover:bg-blue-700">
+            Build My Resume
+        </a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-6 bg-gray-900 text-white text-center">
+        <p>&copy; 2025 JobSummarizer. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

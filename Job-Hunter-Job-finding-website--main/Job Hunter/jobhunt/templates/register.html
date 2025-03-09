@@ -1,0 +1,68 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<header class="bg-gray-900 text-white py-4"> 
+    <div class="container mx-auto flex justify-between items-center"> 
+        <div class="text-2xl font-bold">Job Summarizer</div> 
+        <nav class="space-x-4"> 
+            <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a> 
+            <a href="#" class="hover:text-gray-400">Employers</a> 
+            <a href="#" class="hover:text-gray-400">Jobseekers</a> 
+            <a href="#" class="hover:text-gray-400">Blog</a> 
+            <a href="#" class="hover:text-gray-400">Contact</a> 
+        </nav> 
+       
+    </div> 
+</header>
+<body class="bg-gray-900">
+    <div class="flex min-h-screen">
+        <!-- Left Side -->
+        <div class="w-1/2 bg-blue-600 flex flex-col justify-center items-center p-8">
+            
+            <h1 class="text-white text-4xl font-bold mb-2">Welcome back!</h1>
+            <p class="text-white mb-6">Get access to your Jobs and many more features.</p>
+            
+        </div>
+        <!-- Right Side -->
+        <div class="w-1/2 bg-gray-800 flex flex-col justify-center items-center p-8">
+            <div class="w-full max-w-md">
+                <h2 class="text-white text-3xl font-bold mb-6">Sign In</h2>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1" for="email">Email Address</label>
+                        <input class="w-full p-2 rounded bg-gray-700 text-white" type="email" id="email" placeholder="Enter Email">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1" for="password">Password</label>
+                        <input class="w-full p-2 rounded bg-gray-700 text-white" type="password" id="password" placeholder="Enter Password">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center text-gray-400">
+                            <input type="checkbox" class="mr-2"> Remember Me
+                        </label>
+                        <a href="#" class="text-blue-500">Forgot Password ?</a>
+                    </div>
+                    <button class="w-full bg-blue-600 text-white py-2 rounded">Sign In</button>
+                </form>
+                <div class="flex items-center my-4">
+                    <div class="flex-grow border-t border-gray-600"></div>
+                    <span class="mx-4 text-gray-400">Or with Social Profile</span>
+                    <div class="flex-grow border-t border-gray-600"></div>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="text-blue-500"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-red-500"><i class="fab fa-google"></i></a>
+                    <a href="#" class="text-blue-400"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-blue-700"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <p class="text-gray-400 mt-4">Don't have an account? <a href="#" class="text-blue-500">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
