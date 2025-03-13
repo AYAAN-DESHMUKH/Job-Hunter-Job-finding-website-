@@ -26,8 +26,10 @@
             <h2 class="text-3xl font-bold mb-8">Job Listings</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {% for job in job_data %}
+                    {% set colors = ['text-blue-500', 'text-green-500', 'text-red-500', 'text-yellow-500', 'text-purple-500', 'text-pink-500', 'text-indigo-500', 'text-teal-500'] %}
+                    {% set color_index = loop.index0 % colors|length %}
                     <a href="{{ job.link }}" target="_blank" class="category-card flex flex-col items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
-                        <i class="fas fa-briefcase text-4xl text-blue-500 mb-4"></i>
+                        <i class="fas fa-briefcase text-4xl {{ colors[color_index] }} mb-4"></i>
                         <h3 class="text-xl font-semibold">{{ job.name }}</h3>
                         <p class="text-gray-500">{{ job.location }}</p>
                     </a>
