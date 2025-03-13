@@ -100,7 +100,6 @@ def show_jobs():
     else:
         return redirect(url_for('home'))
 
-
 def scrape_naukri(keyword):
     options = Options()
     options.add_argument("--headless")  # Run in headless mode
@@ -122,7 +121,7 @@ def scrape_naukri(keyword):
         jobs.append({
             "name": name.text, 
             "location": location.text, 
-            "link": name.get_attribute("href")  # Extract the href attribute
+            "link": name.get_attribute("href")
         })
     
     driver.quit()
@@ -134,31 +133,42 @@ def scrape_fresherworld(keyword):
     service = Service()  # Use the default GeckoDriver service
     driver = webdriver.Firefox(service=service, options=options)
     
-    driver.get(f"https://www.freshersworld.com/jobs/jobsearch/{keyword}-jobs")
-    
-    # Wait for job cards to load
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "div.col-md-12.col-lg-12.col-xs-12.padding-none.job-container.jobs-on-hover.top_space"))
-    )
-
-    job_cards = driver.find_elements(By.CSS_SELECTOR, "div.col-md-12.col-lg-12.col-xs-12.padding-none.job-container.jobs-on-hover.top_space")
-    
-    jobs = []
-    for card in job_cards[:5]:  # Limit to 5 jobs
+    try:
+        driver.get(f"https://www.freshersworld.com/jobs/jobsearch/{keyword}-jobs")
+        
+        # Wait for job cards to load (update the CSS selector if necessary)
         try:
-            job_name = card.find_element(By.CSS_SELECTOR, "span.wrap-title.seo_title").text
-            job_location = card.find_element(By.CSS_SELECTOR, "a.bold_font").text
-            job_link = card.get_attribute("job_display_url")  # Extract the custom attribute
-            jobs.append({
-                "name": job_name, 
-                "location": job_location, 
-                "link": job_link
-            })
-        except Exception as e:
-            print(f"Error extracting job details: {e}")
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.col-md-12.col-lg-12.col-xs-12.padding-none.job-container.jobs-on-hover.top_space"))
+            )
+        except TimeoutException:
+            print(f"Timeout waiting for job cards on Freshersworld for keyword '{keyword}'. Page source: {driver.page_source[:500]}")
+            driver.quit()
+            return []  # Return empty list if job cards aren't found
+
+        job_cards = driver.find_elements(By.CSS_SELECTOR, "div.col-md-12.col-lg-12.col-xs-12.padding-none.job-container.jobs-on-hover.top_space")
+        
+        jobs = []
+        for card in job_cards[:5]:  # Limit to 5 jobs
+            try:
+                job_name = card.find_element(By.CSS_SELECTOR, "span.wrap-title.seo_title").text
+                job_location = card.find_element(By.CSS_SELECTOR, "a.bold_font").text
+                job_link = card.get_attribute("job_display_url")
+                jobs.append({
+                    "name": job_name, 
+                    "location": job_location, 
+                    "link": job_link
+                })
+            except Exception as e:
+                print(f"Error extracting job details from Freshersworld: {e}")
+        
+        driver.quit()
+        return jobs
     
-    driver.quit()
-    return jobs
+    except Exception as e:
+        print(f"Error in scrape_fresherworld for keyword '{keyword}': {e}")
+        driver.quit()
+        return []  # Return empty list on failure
 
 def scrape_jobsora(keyword):
     options = Options()
@@ -181,7 +191,7 @@ def scrape_jobsora(keyword):
         jobs.append({
             "name": name.text, 
             "location": location.text, 
-            "link": name.get_attribute("href")  # Extract the href attribute
+            "link": name.get_attribute("href")
         })
     
     driver.quit()
@@ -193,7 +203,7 @@ def scrape_jobs(keywords):
     
     # Use ThreadPoolExecutor for asynchronous scraping
     with ThreadPoolExecutor() as executor:
-        # Scrape Naukri and Jobsora concurrently
+        # Scrape Naukri, Freshersworld, and Jobsora concurrently
         futures = []
         for keyword in keywords:
             futures.append(executor.submit(scrape_naukri, keyword))
@@ -204,8 +214,10 @@ def scrape_jobs(keywords):
         for future in futures:
             job_data.extend(future.result())
     
+   
+    
     # Update scraping status
     scraping_status = {"status": "complete", "job_data": job_data}
 
 if __name__ == '__main__':
-     app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=3000, debug=True)
