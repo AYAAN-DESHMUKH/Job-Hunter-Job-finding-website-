@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Career Insights</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-gray-900 text-white py-4"> 
+        <div class="container mx-auto flex justify-between items-center"> 
+            <div class="text-2xl font-bold">Job Summarizer</div> 
+            <nav class="space-x-4"> 
+                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a> 
+                <a href="#" class="hover:text-gray-400">Employers</a> 
+                <a href="{{ url_for('Jobseekers') }}" class="hover:text-gray-400">Jobseekers</a> 
+                <a href="{{ url_for('Blog') }}" class="hover:text-gray-400">Blog</a> 
+                <a href="{{ url_for('contact') }}" class="hover:text-gray-400">Contact</a> 
+            </nav> 
+            <div class="space-x-4"> 
+                
+                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
+                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a> 
+            </div> 
+        </div> 
+    </header>
+    <!-- Hero Section -->
+    <section class="relative bg-cover bg-center h-72 flex items-center justify-center text-center text-white"
+        style="background-image: url('{{ url_for('static', filename='css/images/js/bg.jpeg') }}');">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="relative z-10">
+            <h1 class="text-4xl font-bold">Career Insights & Job Market Trends</h1>
+            <p class="text-lg mt-4">Explore expert advice on job searching, resumes, and career growth.</p>
+        </div>
+    </section>
+
+    <!-- Blog Categories -->
+    <div class="container mx-auto mt-10 text-center">
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="https://www.michaelpage.com.au/advice/career-advice/resume-and-cover-letter/how-write-winning-resume" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Resume Tips</a>
+            <a href="https://www.indeed.com/career-advice/interviewing/how-to-master-an-interview" target="_blank" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Interview Prep</a>
+            <a href="https://www.coursera.org/enterprise/articles/what-is-career-growth" target="_blank" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">Career Growth</a>
+            <a href="https://nbs.edu.in/top-10-high-demand-jobs-in-2025/" target="_blank" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Industry Insights</a>
+        </div>
+    </div>
+
+    <!-- Featured Articles -->
+    <section class="container mx-auto py-12 px-6">
+        <h2 class="text-2xl font-bold text-center mb-6">Featured Articles</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Blog Post Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <img src="{{ url_for('static', filename='css/images/js/winning_resume.jpg') }}" class="w-full h-40 object-cover rounded-lg" alt="Blog Image">
+                <h3 class="text-xl font-semibold mt-4">How to Write a Winning Resume</h3>
+                <p class="text-gray-600 mt-2">Learn expert tips on crafting a resume that stands out in the job market.</p>
+                <a href="https://www.michaelpage.com.au/advice/career-advice/resume-and-cover-letter/how-write-winning-resume" target="_blank" class="mt-4 inline-block text-blue-600 hover:underline">Read More →</a>
+            </div>
+
+            <!-- More Blog Posts -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <img src="{{ url_for('static', filename='css/images/js/job.png') }}" class="w-full h-40 object-cover rounded-lg" alt="Blog Image">
+                <h3 class="text-xl font-semibold mt-4">Mastering the Job Interview</h3>
+                <p class="text-gray-600 mt-2">Ace your next job interview with these proven strategies.</p>
+                <a href="https://www.indeed.com/career-advice/interviewing/how-to-master-an-interview" target="_blank" class="mt-4 inline-block text-blue-600 hover:underline">Read More →</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <img src="{{ url_for('static', filename='css/images/js/industry_insights.jpg') }}" class="w-full h-40 object-cover rounded-lg" alt="Blog Image">
+                <h3 class="text-xl font-semibold mt-4">Top In-Demand Jobs in 2025</h3>
+                <p class="text-gray-600 mt-2">Explore the careers that will be booming in the coming years.</p>
+                <a href="https://nbs.edu.in/top-10-high-demand-jobs-in-2025/" target="_blank" class="mt-4 inline-block text-blue-600 hover:underline">Read More →</a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="py-6 bg-gray-900 text-white text-center">
+        <p>&copy; 2025 JobSummarizer. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

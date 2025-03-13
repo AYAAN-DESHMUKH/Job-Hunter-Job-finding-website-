@@ -28,6 +28,18 @@ def register():
 def login():
     return render_template('login.html')
 
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@app.route('/Jobseekers')
+def Jobseekers():
+    return render_template('Jobseekers.html')
+
+@app.route('/Blog')
+def Blog():
+    return render_template('Blog.html')
+
 @app.route('/')
 def home():
     categories = [

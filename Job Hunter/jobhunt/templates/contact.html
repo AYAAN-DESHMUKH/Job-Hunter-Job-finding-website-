@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Contact Us</title> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style> 
+        body { font-family: 'Roboto', sans-serif; } 
+    </style> 
+</head> 
+
+<body class="bg-gray-100"> 
+    <header class="bg-gray-900 text-white py-4"> 
+        <div class="container mx-auto flex justify-between items-center"> 
+            <div class="text-2xl font-bold">Job Summarizer</div> 
+            <nav class="space-x-4"> 
+                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a> 
+                <a href="#" class="hover:text-gray-400">Employers</a> 
+                <a href="{{ url_for('Jobseekers') }}" class="hover:text-gray-400">Jobseekers</a> 
+                <a href="{{ url_for('Blog') }}" class="hover:text-gray-400">Blog</a> 
+                <a href="{{ url_for('contact') }}" class="hover:text-gray-400">Contact</a> 
+            </nav> 
+            <div class="space-x-4"> 
+                
+                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
+                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a> 
+            </div> 
+        </div> 
+    </header>
+
+    <section class="relative bg-cover bg-center h-screen" style="background-image: url('{{ url_for('static', filename='css/images/js/bg.jpeg') }}');">
+        <div class="absolute inset-0 bg-blue-900 opacity-75"></div>
+        <div class="container mx-auto relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">About Us</h1>
+            <div class="max-w-2xl mx-auto bg-blue-900 bg-opacity-30 p-6 rounded-lg shadow-2xl text-center text-white mb-8">
+                <p class="text-lg"> 
+                    Welcome to Resume Builder, Summarizer & Job Finder! Our platform is designed to help job seekers enhance their resumes, summarize key qualifications, and discover job opportunities with ease.
+                    <br><br>Our AI-driven system ensures that your resume gets the attention it deserves by highlighting your strengths and matching you with relevant job openings.
+                    <br><br>Stay tuned for upcoming features that will further enhance your job-seeking experience!
+                </p>
+            </div>
+                        
+            <div class="bg-white rounded-lg p-8 shadow-lg flex flex-col items-center space-y-4">
+                <i class="fas fa-envelope text-6xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800">Email Us</h3>
+                <ul>
+                    <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=24dco01@aiktc.ac.in" class="text-blue-500 hover:underline">📧 24dco01@aiktc.ac.in</a></li>
+                    <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=24dco02@aiktc.ac.in" class="text-blue-500 hover:underline">📧 24dco02@aiktc.ac.in</a></li>
+                    <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=24dco03@aiktc.ac.in" class="text-blue-500 hover:underline">📧 24dco03@aiktc.ac.in</a></li>
+                    <li><a href="https://mail.google.com/mail/?view=cm&fs=1&to=24dco05@aiktc.ac.in" class="text-blue-500 hover:underline">📧 24dco05@aiktc.ac.in</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 bg-gray-900 text-white text-center">
+        <div class="container mx-auto">
+            <p>&copy; 2025 JobSummariser. All rights reserved.</p>
+        </div>
+    </footer>
+</body> 
+</html>
