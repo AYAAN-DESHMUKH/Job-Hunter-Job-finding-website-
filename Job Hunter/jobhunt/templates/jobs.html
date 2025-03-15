@@ -6,6 +6,39 @@
     <title>Job Listings</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script>
+        // Function to handle bookmarking
+        function bookmarkJob(jobId) {
+            const decodedJobId = decodeURIComponent(jobId);  // Decode the job name
+            console.log("Bookmarking job:", decodedJobId);  // Debugging line
+            fetch(`/bookmark/${jobId}`, {  // Send the encoded job name
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Job bookmarked successfully!', 'success');
+                } else {
+                    showNotification('Failed to bookmark job.', 'error');
+                }
+            });
+        }
+
+        // Function to show themed notifications
+ function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.innerText = message;
+            document.body.appendChild(notification);
+
+            // Remove the notification after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
 </head>
 <body class="bg-gray-100">
     <!-- Header -->
@@ -14,6 +47,7 @@
             <div class="text-2xl font-bold">Job Summarizer</div>
             <nav class="space-x-4">
                 <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a>
+                <a href="{{ url_for('bookmarks') }}" class="hover:text-gray-400">Bookmarks</a>
                 <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
                 <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a>
             </nav>
@@ -26,13 +60,26 @@
             <h2 class="text-3xl font-bold mb-8">Job Listings</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {% for job in job_data %}
-                    {% set colors = ['text-blue-500', 'text-green-500', 'text-red-500', 'text-yellow-500', 'text-purple-500', 'text-pink-500', 'text-indigo-500', 'text-teal-500'] %}
-                    {% set color_index = loop.index0 % colors|length %}
-                    <a href="{{ job.link }}" target="_blank" class="category-card flex flex-col items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
-                        <i class="fas fa-briefcase text-4xl {{ colors[color_index] }} mb-4"></i>
-                        <h3 class="text-xl font-semibold">{{ job.name }}</h3>
-                        <p class="text-gray-500">{{ job.location }}</p>
-                    </a>
+                    {% set card_colors = ['bg-gradient-to-r from-blue-50 to-blue-100', 
+                                         'bg-gradient-to-r from-green-50 to-green-100', 
+                                         'bg-gradient-to-r from-pink-50 to-pink-100', 
+                                         'bg-gradient-to-r from-purple-50 to-purple-100', 
+                                         'bg-gradient-to-r from-yellow-50 to-yellow-100', 
+                                         'bg-gradient-to-r from-indigo-50 to-indigo-100', 
+                                         'bg-gradient-to-r from-teal-50 to-teal-100', 
+                                         'bg-gradient-to-r from-red-50 to-red-100'] %}
+                    {% set color_index = loop.index0 % card_colors|length %}
+                    <div class="category-card flex flex-col items-center p-6 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-transform duration-300 {{ card_colors[color_index] }}">
+                        <a href="{{ job.link }}" target="_blank" class="flex flex-col items-center w-full">
+                            <i class="fas fa-briefcase text-4xl text-gray-700 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-800">{{ job.name }}</h3>
+                            <p class="text-gray-600">{{ job.location }}</p>
+                        </a>
+                        <!-- Bookmark icon at the bottom-right -->
+                        <div class="w-full flex justify-end mt-4">
+                            <i class="fas fa-bookmark text-2xl text-gray-700 cursor-pointer hover:text-yellow-500" onclick="bookmarkJob(encodeURIComponent('{{ job.name }}'))"></i>
+                        </div>
+                    </div>
                 {% endfor %}
             </div>
         </div>
@@ -41,7 +88,7 @@
     <!-- Footer -->
     <footer class="py-8 bg-gray-900 text-white text-center">
         <div class="container mx-auto">
-            <p>© 2025 JobSummariser. All rights reserved.</p>
+            <p>&copy; 2025 JobSummariser. All rights reserved.</p>
         </div>
     </footer>
 </body>
