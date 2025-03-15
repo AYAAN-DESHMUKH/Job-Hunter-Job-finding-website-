@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from PyPDF2 import PdfReader
 import os
 from selenium import webdriver
@@ -9,9 +9,12 @@ import threading
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import unquote  # Import unquote for URL decoding
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
+app.secret_key = 'kalsekarkipublic'
 
 # Ensure the upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -19,6 +22,37 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
 
 # Global variable to store scraping status and results
 scraping_status = {"status": "idle", "job_data": []}
+@app.before_request
+def initialize_bookmarks():
+    if 'bookmarks' not in session:
+        session['bookmarks'] = []
+
+
+
+@app.route('/bookmark/<job_id>', methods=['POST'])
+def bookmark_job(job_id):
+    decoded_job_id = unquote(job_id)  # Decode the job name
+    if decoded_job_id not in session['bookmarks']:
+        session['bookmarks'].append(decoded_job_id)
+        session.modified = True
+        return jsonify({"success": True})
+    return jsonify({"success": False})
+
+
+
+# Route to display bookmarks
+@app.route('/bookmarks')
+def bookmarks():
+    bookmarked_jobs = [job for job in scraping_status["job_data"] if job["name"] in session['bookmarks']]
+    return render_template('bookmarks.html', bookmarked_jobs=bookmarked_jobs)
+
+@app.route('/clear_bookmarks', methods=['POST'])
+def clear_bookmarks():
+    session['bookmarks'] = []  # Clear all bookmarks
+    session.modified = True
+    return jsonify({"success": True})
+
+
 
 @app.route('/register')
 def register():
