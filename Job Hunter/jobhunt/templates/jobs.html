@@ -3,9 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Listings</title>
+    <title>Job Listings - JobHunter</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .category-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        /* Specific hover border colors for each card gradient */
+        .category-card.from-blue-50:hover {
+            border-left: 4px solid #dbeafe; /* Matches blue-50 */
+        }
+        .category-card.from-green-50:hover {
+            border-left: 4px solid #dcfce7; /* Matches green-50 */
+        }
+        .category-card.from-pink-50:hover {
+            border-left: 4px solid #fce7f3; /* Matches pink-50 */
+        }
+        .category-card.from-purple-50:hover {
+            border-left: 4px solid #f3e8ff; /* Matches purple-50 */
+        }
+        .category-card.from-yellow-50:hover {
+            border-left: 4px solid #fefce8; /* Matches yellow-50 */
+        }
+        .category-card.from-indigo-50:hover {
+            border-left: 4px solid #eef2ff; /* Matches indigo-50 */
+        }
+        .category-card.from-teal-50:hover {
+            border-left: 4px solid #ccfbf1; /* Matches teal-50 */
+        }
+        .category-card.from-red-50:hover {
+            border-left: 4px solid #fef2f2; /* Matches red-50 */
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #fff;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
+        /* Ensure notification is styled and positioned correctly */
+        .notification {
+            position: fixed;
+            top: 1rem; /* 16px from the top */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Ensure it appears above other elements */
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-weight: 500;
+        }
+    </style>
     <script>
         // Function to handle bookmarking
         function bookmarkJob(jobId) {
@@ -13,23 +83,36 @@
             console.log("Bookmarking job:", decodedJobId);  // Debugging line
             fetch(`/bookmark/${jobId}`, {  // Send the encoded job name
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log("Response status:", response.status); // Debug response
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log("Response data:", data); // Debug data
                 if (data.success) {
                     showNotification('Job bookmarked successfully!', 'success');
                 } else {
                     showNotification('Failed to bookmark job.', 'error');
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('An error occurred while bookmarking.', 'error');
             });
         }
 
         // Function to show themed notifications
- function showNotification(message, type) {
+        function showNotification(message, type) {
+            console.log("Showing notification:", message, type); // Debug notification trigger
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg text-white ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
+            notification.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
             notification.innerText = message;
             document.body.appendChild(notification);
 
@@ -40,36 +123,64 @@
         }
     </script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     <!-- Header -->
-    <header class="bg-gray-900 text-white py-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="text-2xl font-bold">Job Summarizer</div>
-            <nav class="space-x-4">
-                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a>
-                <a href="{{ url_for('bookmarks') }}" class="hover:text-gray-400">Bookmarks</a>
-                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
-                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a>
+    <header class="bg-gradient-to-r from-blue-900 to-black text-white py-5 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-briefcase text-2xl mr-2 text-blue-300"></i>
+                <div class="text-2xl font-bold">Job<span class="text-blue-300">Hunter</span></div>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="{{ url_for('home') }}" class="nav-link font-medium hover:text-blue-300 transition">Home</a>
+                <a href="#" class="nav-link font-medium hover:text-blue-300 transition">Employers</a>
+                <a href="{{ url_for('bookmarks') }}" class="nav-link font-medium hover:text-blue-300 transition">Bookmarks</a>
+                <a href="{{ url_for('Blog') }}" class="nav-link font-medium hover:text-blue-300 transition">Blog</a>
+                <a href="{{ url_for('contact') }}" class="nav-link font-medium hover:text-blue-300 transition">Contact</a>
             </nav>
+            <div class="hidden md:flex space-x-4">
+                <a href="{{ url_for('register') }}" class="px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-blue-900 transition">Register</a>
+                <a href="{{ url_for('login') }}" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-md">Login</a>
+            </div>
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu (hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-900 mt-4 py-4 px-4">
+            <div class="flex flex-col space-y-3">
+                <a href="{{ url_for('home') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Home</a>
+                <a href="#" class="py-2 hover:bg-blue-800 px-3 rounded">Employers</a>
+                <a href="{{ url_for('bookmarks') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Bookmarks</a>
+                <a href="{{ url_for('Blog') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Blog</a>
+                <a href="{{ url_for('contact') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Contact</a>
+                <div class="pt-2 flex flex-col space-y-2">
+                    <a href="{{ url_for('register') }}" class="py-2 text-center border border-white rounded hover:bg-white hover:text-blue-900 transition">Register</a>
+                    <a href="{{ url_for('login') }}" class="py-2 text-center bg-blue-600 rounded hover:bg-blue-700 transition">Login</a>
+                </div>
+            </div>
         </div>
     </header>
 
     <!-- Job Listings -->
     <section class="py-16 bg-white">
-        <div class="container mx-auto text-center">
+        <div class="container mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold mb-8">Job Listings</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {% for job in job_data %}
-                    {% set card_colors = ['bg-gradient-to-r from-blue-50 to-blue-100', 
-                                         'bg-gradient-to-r from-green-50 to-green-100', 
-                                         'bg-gradient-to-r from-pink-50 to-pink-100', 
-                                         'bg-gradient-to-r from-purple-50 to-purple-100', 
-                                         'bg-gradient-to-r from-yellow-50 to-yellow-100', 
-                                         'bg-gradient-to-r from-indigo-50 to-indigo-100', 
-                                         'bg-gradient-to-r from-teal-50 to-teal-100', 
-                                         'bg-gradient-to-r from-red-50 to-red-100'] %}
+                    {% set card_colors = ['bg-gradient-to-r from-blue-50 to-blue-100',
+                                          'bg-gradient-to-r from-green-50 to-green-100',
+                                          'bg-gradient-to-r from-pink-50 to-pink-100',
+                                          'bg-gradient-to-r from-purple-50 to-purple-100',
+                                          'bg-gradient-to-r from-yellow-50 to-yellow-100',
+                                          'bg-gradient-to-r from-indigo-50 to-indigo-100',
+                                          'bg-gradient-to-r from-teal-50 to-teal-100',
+                                          'bg-gradient-to-r from-red-50 to-red-100'] %}
                     {% set color_index = loop.index0 % card_colors|length %}
-                    <div class="category-card flex flex-col items-center p-6 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-transform duration-300 {{ card_colors[color_index] }}">
+                    <div class="category-card flex flex-col items-center p-6 rounded-lg shadow-md {{ card_colors[color_index] }}">
                         <a href="{{ job.link }}" target="_blank" class="flex flex-col items-center w-full">
                             <i class="fas fa-briefcase text-4xl text-gray-700 mb-4"></i>
                             <h3 class="text-xl font-semibold text-gray-800">{{ job.name }}</h3>
@@ -86,10 +197,60 @@
     </section>
 
     <!-- Footer -->
-    <footer class="py-8 bg-gray-900 text-white text-center">
-        <div class="container mx-auto">
-            <p>&copy; 2025 JobSummariser. All rights reserved.</p>
+    <footer class="bg-gray-900 text-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 py-12">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-briefcase text-xl mr-2 text-blue-400"></i>
+                        <div class="text-xl font-bold">Job<span class="text-blue-400">Hunter</span></div>
+                    </div>
+                    <p class="text-gray-400 mb-4">Your AI-powered career partner for finding the perfect job match.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Job Seekers</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Browse Jobs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Create Resume</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Job Alerts</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Career Advice</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Employers</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Post a Job</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Browse Candidates</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Pricing Plans</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Recruitment Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center"><i class="fas fa-envelope mr-2 text-blue-400"></i> <a href="mailto:contact@jobhunter.com" class="text-gray-400 hover:text-white">contact@jobhunter.com</a></li>
+                        <li class="flex items-center"><i class="fas fa-phone mr-2 text-blue-400"></i> <span class="text-gray-400">+1 (555) 123-4567</span></li>
+                        <li class="flex items-center"><i class="fas fa-map-marker-alt mr-2 text-blue-400"></i> <span class="text-gray-400">123 Career Street, Job City</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="py-4 border-t border-gray-800 text-center">
+                <p class="text-gray-400">© 2025 JobHunter. All rights reserved.</p>
+            </div>
         </div>
     </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>
