@@ -3,81 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog | Career Insights</title>
+    <title>Blog | Career Insights - JobHunter</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #fff;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
+        .blog-card {
+            transition: all 0.3s ease;
+        }
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .hero-overlay {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.85), rgba(30, 64, 175, 0.85));
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <header class="bg-gray-900 text-white py-4"> 
-        <div class="container mx-auto flex justify-between items-center"> 
-            <div class="text-2xl font-bold">Job Summarizer</div> 
-            <nav class="space-x-4"> 
-                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a> 
-                <a href="#" class="hover:text-gray-400">Employers</a> 
-                <a href="{{ url_for('Jobseekers') }}" class="hover:text-gray-400">Jobseekers</a> 
-                <a href="{{ url_for('Blog') }}" class="hover:text-gray-400">Blog</a> 
-                <a href="{{ url_for('contact') }}" class="hover:text-gray-400">Contact</a> 
-            </nav> 
-            <div class="space-x-4"> 
-                
-                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
-                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a> 
-            </div> 
-        </div> 
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-900 to-black text-white py-5 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-briefcase text-2xl mr-2 text-blue-300"></i>
+                <div class="text-2xl font-bold">Job<span class="text-blue-300">Hunter</span></div>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="{{ url_for('home') }}" class="nav-link font-medium hover:text-blue-300 transition">Home</a>
+                <a href="#" class="nav-link font-medium hover:text-blue-300 transition">Employers</a>
+                <a href="{{ url_for('Jobseekers') }}" class="nav-link font-medium hover:text-blue-300 transition">Jobseekers</a>
+                <a href="{{ url_for('Blog') }}" class="nav-link font-medium hover:text-blue-300 transition">Blog</a>
+                <a href="{{ url_for('contact') }}" class="nav-link font-medium hover:text-blue-300 transition">Contact</a>
+            </nav>
+            <div class="hidden md:flex space-x-4">
+                <a href="{{ url_for('register') }}" class="px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-blue-900 transition">Register</a>
+                <a href="{{ url_for('login') }}" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-md">Login</a>
+            </div>
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu (hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-900 mt-4 py-4 px-4">
+            <div class="flex flex-col space-y-3">
+                <a href="{{ url_for('home') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Home</a>
+                <a href="#" class="py-2 hover:bg-blue-800 px-3 rounded">Employers</a>
+                <a href="{{ url_for('Jobseekers') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Jobseekers</a>
+                <a href="{{ url_for('Blog') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Blog</a>
+                <a href="{{ url_for('contact') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Contact</a>
+                <div class="pt-2 flex flex-col space-y-2">
+                    <a href="{{ url_for('register') }}" class="py-2 text-center border border-white rounded hover:bg-white hover:text-blue-900 transition">Register</a>
+                    <a href="{{ url_for('login') }}" class="py-2 text-center bg-blue-600 rounded hover:bg-blue-700 transition">Login</a>
+                </div>
+            </div>
+        </div>
     </header>
+
     <!-- Hero Section -->
     <section class="relative bg-cover bg-center h-72 flex items-center justify-center text-center text-white"
         style="background-image: url('{{ url_for('static', filename='css/images/js/bg.jpeg') }}');">
-        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="absolute inset-0 hero-overlay"></div>
         <div class="relative z-10">
-            <h1 class="text-4xl font-bold">Career Insights & Job Market Trends</h1>
-            <p class="text-lg mt-4">Explore expert advice on job searching, resumes, and career growth.</p>
+            <h1 class="text-4xl md:text-5xl font-bold">Career Insights & Job Market Trends</h1>
+            <p class="text-lg mt-4 text-blue-100">Explore expert advice on job searching, resumes, and career growth.</p>
         </div>
     </section>
 
     <!-- Blog Categories -->
-    <div class="container mx-auto mt-10 text-center">
+    <div class="container mx-auto mt-10 px-4 text-center">
         <div class="flex flex-wrap justify-center gap-4">
-            <a href="https://www.michaelpage.com.au/advice/career-advice/resume-and-cover-letter/how-write-winning-resume" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Resume Tips</a>
-            <a href="https://www.indeed.com/career-advice/interviewing/how-to-master-an-interview" target="_blank" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Interview Prep</a>
-            <a href="https://www.coursera.org/enterprise/articles/what-is-career-growth" target="_blank" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">Career Growth</a>
-            <a href="https://nbs.edu.in/top-10-high-demand-jobs-in-2025/" target="_blank" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Industry Insights</a>
+            <a href="https://www.michaelpage.com.au/advice/career-advice/resume-and-cover-letter/how-write-winning-resume" target="_blank" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition shadow-md">Resume Tips</a>
+            <a href="https://www.indeed.com/career-advice/interviewing/how-to-master-an-interview" target="_blank" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition shadow-md">Interview Prep</a>
+            <a href="https://www.coursera.org/enterprise/articles/what-is-career-growth" target="_blank" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition shadow-md">Career Growth</a>
+            <a href="https://nbs.edu.in/top-10-high-demand-jobs-in-2025/" target="_blank" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition shadow-md">Industry Insights</a>
         </div>
     </div>
 
     <!-- Featured Articles -->
-    <section class="container mx-auto py-12 px-6">
-        <h2 class="text-2xl font-bold text-center mb-6">Featured Articles</h2>
+    <section class="container mx-auto py-12 px-4">
+        <h2 class="text-3xl font-bold text-center mb-6">Featured Articles</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Blog Post Card -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="blog-card bg-white p-6 rounded-lg shadow-md">
                 <img src="{{ url_for('static', filename='css/images/js/winning_resume.jpg') }}" class="w-full h-40 object-cover rounded-lg" alt="Blog Image">
-                <h3 class="text-xl font-semibold mt-4">How to Write a Winning Resume</h3>
+                <h3 class="text-xl font-semibold mt-4 text-gray-800">How to Write a Winning Resume</h3>
                 <p class="text-gray-600 mt-2">Learn expert tips on crafting a resume that stands out in the job market.</p>
                 <a href="https://www.michaelpage.com.au/advice/career-advice/resume-and-cover-letter/how-write-winning-resume" target="_blank" class="mt-4 inline-block text-blue-600 hover:underline">Read More →</a>
             </div>
 
             <!-- More Blog Posts -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="blog-card bg-white p-6 rounded-lg shadow-md">
                 <img src="{{ url_for('static', filename='css/images/js/job.png') }}" class="w-full h-40 object-cover rounded-lg" alt="Blog Image">
-                <h3 class="text-xl font-semibold mt-4">Mastering the Job Interview</h3>
+                <h3 class="text-xl font-semibold mt-4 text-gray-800">Mastering the Job Interview</h3>
                 <p class="text-gray-600 mt-2">Ace your next job interview with these proven strategies.</p>
                 <a href="https://www.indeed.com/career-advice/interviewing/how-to-master-an-interview" target="_blank" class="mt-4 inline-block text-blue-600 hover:underline">Read More →</a>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="blog-card bg-white p-6 rounded-lg shadow-md">
                 <img src="{{ url_for('static', filename='css/images/js/industry_insights.jpg') }}" class="w-full h-40 object-cover rounded-lg" alt="Blog Image">
-                <h3 class="text-xl font-semibold mt-4">Top In-Demand Jobs in 2025</h3>
+                <h3 class="text-xl font-semibold mt-4 text-gray-800">Top In-Demand Jobs in 2025</h3>
                 <p class="text-gray-600 mt-2">Explore the careers that will be booming in the coming years.</p>
                 <a href="https://nbs.edu.in/top-10-high-demand-jobs-in-2025/" target="_blank" class="mt-4 inline-block text-blue-600 hover:underline">Read More →</a>
             </div>
         </div>
     </section>
 
-
     <!-- Footer -->
-    <footer class="py-6 bg-gray-900 text-white text-center">
-        <p>&copy; 2025 JobSummarizer. All rights reserved.</p>
+    <footer class="bg-gray-900 text-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 py-12">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-briefcase text-xl mr-2 text-blue-400"></i>
+                        <div class="text-xl font-bold">Job<span class="text-blue-400">Hunter</span></div>
+                    </div>
+                    <p class="text-gray-400 mb-4">Your AI-powered career partner for finding the perfect job match.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Job Seekers</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Browse Jobs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Create Resume</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Job Alerts</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Career Advice</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Employers</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Post a Job</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Browse Candidates</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Pricing Plans</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Recruitment Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center"><i class="fas fa-envelope mr-2 text-blue-400"></i> <a href="mailto:contact@jobhunter.com" class="text-gray-400 hover:text-white">contact@jobhunter.com</a></li>
+                        <li class="flex items-center"><i class="fas fa-phone mr-2 text-blue-400"></i> <span class="text-gray-400">+1 (555) 123-4567</span></li>
+                        <li class="flex items-center"><i class="fas fa-map-marker-alt mr-2 text-blue-400"></i> <span class="text-gray-400">123 Career Street, Job City</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="py-4 border-t border-gray-800 text-center">
+                <p class="text-gray-400">© 2025 JobHunter. All rights reserved.</p>
+            </div>
+        </div>
     </footer>
 
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>
