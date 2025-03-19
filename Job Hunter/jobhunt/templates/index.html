@@ -3,96 +3,352 @@
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Jobhunt</title> 
+    <title>JobHunter</title> 
     <script src="https://cdn.tailwindcss.com"></script> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
     <style> 
-        body { font-family: 'Roboto', sans-serif; } 
-        .category-card { transition: transform 0.3s ease, box-shadow 0.3s ease; } 
-        .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); } 
+        body { 
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .category-card { 
+            transition: all 0.3s ease; 
+            border-left: 4px solid transparent;
+        } 
+        .category-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 25px rgba(29, 78, 216, 0.15);
+            border-left: 4px solid #1d4ed8;
+        }
+        .btn-primary {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-primary:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: -1;
+        }
+        .btn-primary:hover:after {
+            height: 100%;
+        }
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .file-upload-wrapper:hover {
+            transform: translateY(-2px);
+        }
+        .hero-overlay {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.85), rgba(30, 64, 175, 0.85));
+        }
+        .resume-upload-card {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #fff;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
     </style> 
 </head> 
 
-<body class="bg-gray-100"> 
-    <!-- Header -->
-    <header class="bg-gray-900 text-white py-4"> 
-        <div class="container mx-auto flex justify-between items-center"> 
-            <div class="text-2xl font-bold">Job Hunter</div> 
-            <nav class="space-x-4"> 
-                <a href="{{ url_for('home') }}" class="hover:text-gray-400">Home</a> 
-                <a href="#" class="hover:text-gray-400">Employers</a> 
-                <a href="{{ url_for('bookmarks') }}">Bookmarks</a> 
-                <a href="{{ url_for('Blog') }}" class="hover:text-gray-400">Blog</a> 
-                <a href="{{ url_for('contact') }}" class="hover:text-gray-400">Contact</a> 
+<body class="bg-gray-50"> 
+    <!-- Header with improved navigation -->
+    <header class="bg-gradient-to-r from-blue-900 to-black text-white py-5 sticky top-0 z-50 shadow-lg"> 
+        <div class="container mx-auto px-4 flex justify-between items-center"> 
+            <div class="flex items-center">
+                <i class="fas fa-briefcase text-2xl mr-2 text-blue-300"></i>
+                <div class="text-2xl font-bold">Job<span class="text-blue-300">Hunter</span></div>
+            </div>
+            <nav class="hidden md:flex space-x-6"> 
+                <a href="{{ url_for('home') }}" class="nav-link font-medium hover:text-blue-300 transition">Home</a> 
+                <a href="#" class="nav-link font-medium hover:text-blue-300 transition">Employers</a> 
+                <a href="{{ url_for('bookmarks') }}" class="nav-link font-medium hover:text-blue-300 transition">Bookmarks</a> 
+                <a href="{{ url_for('Blog') }}" class="nav-link font-medium hover:text-blue-300 transition">Blog</a> 
+                <a href="{{ url_for('contact') }}" class="nav-link font-medium hover:text-blue-300 transition">Contact</a> 
             </nav> 
-            <div class="space-x-4"> 
-                
-                <a href="{{ url_for('register') }}" class="hover:text-gray-400">Register</a>
-                <a href="{{ url_for('login') }}" class="hover:text-gray-400">Login</a> 
-            </div> 
-        </div> 
+            <div class="hidden md:flex space-x-4"> 
+                <a href="{{ url_for('register') }}" class="px-4 py-2 rounded-lg border border-white hover:bg-white hover:text-blue-900 transition">Register</a>
+                <a href="{{ url_for('login') }}" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-md">Login</a> 
+            </div>
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu (hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-blue-900 mt-4 py-4 px-4">
+            <div class="flex flex-col space-y-3">
+                <a href="{{ url_for('home') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Home</a> 
+                <a href="#" class="py-2 hover:bg-blue-800 px-3 rounded">Employers</a> 
+                <a href="{{ url_for('bookmarks') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Bookmarks</a> 
+                <a href="{{ url_for('Blog') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Blog</a> 
+                <a href="{{ url_for('contact') }}" class="py-2 hover:bg-blue-800 px-3 rounded">Contact</a>
+                <div class="pt-2 flex flex-col space-y-2">
+                    <a href="{{ url_for('register') }}" class="py-2 text-center border border-white rounded hover:bg-white hover:text-blue-900 transition">Register</a>
+                    <a href="{{ url_for('login') }}" class="py-2 text-center bg-blue-600 rounded hover:bg-blue-700 transition">Login</a>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <!-- Hero Section -->
+    <!-- Hero Section with improved visual appeal -->
     <section class="relative bg-cover bg-center h-screen" style="background-image: url('{{ url_for('static', filename='css/images/js/bg.jpeg') }}');">
-        <div class="absolute inset-0 bg-blue-900 opacity-75"></div>
-        <div class="container mx-auto relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">The Easiest Way to Get Your New Job</h1>
-            <p class="text-lg mb-8">Find Jobs, Employment & Career Opportunities</p>
-            <div class="bg-white rounded-lg p-8 shadow-lg flex flex-col items-center space-y-4">
-                 <i class="fas fa-file-pdf text-6xl text-blue-500 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-800">Upload Your Resume</h3>
-                <p class="text-gray-600 mb-4">Upload your resume in PDF format to get started.</p>
-                <form id="uploadForm" action="{{ url_for('upload_resume') }}" method="POST" enctype="multipart/form-data">
-                    <label for="file-upload" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer">
-                        Upload PDF
-                        <input id="file-upload" type="file" name="resume" class="hidden" accept=".pdf" onchange="submitForm()">
-                    </label>
-                </form>
+        <div class="absolute inset-0 hero-overlay"></div>
+        <div class="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight animate__animated animate__fadeInDown">Launch Your Career Journey Today</h1>
+                <p class="text-xl mb-10 text-blue-100">Smart job matching powered by AI to find your perfect career fit</p>
+            </div>
+            <div class="resume-upload-card rounded-xl p-8 shadow-2xl max-w-md w-full">
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="bg-blue-100 p-4 rounded-full">
+                        <i class="fas fa-file-alt text-5xl text-blue-700"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Get Personalized Job Matches</h3>
+                    <p class="text-gray-600 mb-2">Upload your resume and let our AI find the perfect jobs for you</p>
+                    <form id="uploadForm" action="{{ url_for('upload_resume') }}" method="POST" enctype="multipart/form-data" class="w-full">
+                        <div class="file-upload-wrapper w-full">
+                            <label for="file-upload" class="btn-primary w-full block bg-gradient-to-r from-blue-700 to-blue-900 text-white px-6 py-3 rounded-lg text-center cursor-pointer hover:from-blue-800 hover:to-black shadow-lg">
+                                <i class="fas fa-cloud-upload-alt mr-2"></i> Upload Your Resume
+                                <input id="file-upload" type="file" name="resume" class="hidden" accept=".pdf" onchange="submitForm()">
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Supports PDF format only</p>
+                    </form>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Categories Section -->
-    <section class="py-16 bg-white">
-        <div class="container mx-auto text-center">
-            <h2 class="text-3xl font-bold mb-8">Popular Categories</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <!-- Features Section (New) -->
+    <section class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">How JobHunter Works</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Our AI-powered platform analyzes your resume and matches you with the perfect job opportunities</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition">
+                    <div class="bg-blue-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-upload text-2xl text-blue-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">1. Upload Resume</h3>
+                    <p class="text-gray-600 text-center">Upload your resume in PDF format to get started on your job search journey</p>
+                </div>
+                <div class="flex flex-col items-center p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition">
+                    <div class="bg-blue-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-robot text-2xl text-blue-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">2. AI Analysis</h3>
+                    <p class="text-gray-600 text-center">Our AI analyzes your skills and experience to identify your strengths and areas for improvement</p>
+                </div>
+                <div class="flex flex-col items-center p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition">
+                    <div class="bg-blue-100 p-4 rounded-full mb-4">
+                        <i class="fas fa-briefcase text-2xl text-blue-700"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">3. Job Matching</h3>
+                    <p class="text-gray-600 text-center">Receive personalized job recommendations that match your profile and career goals</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section with improved cards -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-3">Explore Job Categories</h2>
+            <p class="text-gray-600 mb-10 max-w-2xl mx-auto">Discover opportunities across various industries that match your skills and experience</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {% for category in categories %}
-                    <div class="category-card flex flex-col items-center bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
-                        <i class="{{ category.icon_class }} text-4xl text-blue-500 mb-4"></i>
-                        <h3 class="text-xl font-semibold">{{ category.name }}</h3>
-                        <p class="text-gray-500">{{ category.open_positions }} Open Positions</p>
+                    <div class="category-card flex items-center bg-white p-6 rounded-lg shadow-md">
+                        <div class="mr-4 bg-blue-50 p-3 rounded-lg">
+                            <i class="{{ category.icon_class }} text-2xl text-blue-700"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-lg font-semibold">{{ category.name }}</h3>
+                            <p class="text-blue-700 font-medium">{{ category.open_positions }} Jobs</p>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
-           
+            <div class="mt-10">
+                <a href="#" class="inline-flex items-center px-6 py-3 bg-white border border-blue-700 text-blue-700 rounded-lg hover:bg-blue-50 transition shadow-sm">
+                    View All Categories <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
         </div>
     </section>
 
-    <!-- Call to Action Section -->
-    <section class="py-16 bg-blue-900 text-white text-center">
-        <div class="container mx-auto">
-            <h2 class="text-3xl font-bold mb-4">Make a Difference with Your Online Resume!</h2>
-            <p class="mb-8">Your resume in minutes with Jobhunt resume assistant is ready!</p>
-            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Make your Resume</button>
+    <!-- Testimonials Section (New) -->
+    <section class="py-16 bg-blue-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-3">Success Stories</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">See how JobHunter has helped professionals find their dream jobs</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-gray-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Barkat ali Shah</h4>
+                            <p class="text-sm text-gray-600">Software Developer</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"JobHunter's AI analysis of my resume helped me highlight skills I didn't know were in demand. I landed a job within 2 weeks!"</p>
+                    <div class="mt-4 text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-gray-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Sahil Sheikh</h4>
+                            <p class="text-sm text-gray-600">Marketing Specialist</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"The job matching feature was spot on! I received recommendations that perfectly aligned with my career goals and experience."</p>
+                    <div class="mt-4 text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-gray-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Saim rais</h4>
+                            <p class="text-sm text-gray-600">Project Manager</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700">"The resume feedback pointed out areas I needed to improve. After making those changes, I started getting more interview calls!"</p>
+                    <div class="mt-4 text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="py-8 bg-gray-900 text-white text-center">
-        <div class="container mx-auto">
-            <p>&copy; 2025 JobHunter. All rights reserved.</p>
+    <!-- Call to Action Section with improved design -->
+    <section class="py-16 bg-gradient-to-r from-blue-900 to-black text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">Create Your Professional Resume Now</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Let our AI-powered resume builder help you create a standout resume in minutes</p>
+            <button class="btn-primary bg-gradient-to-r from-blue-600 to-blue-800 text-white px-8 py-3 rounded-lg text-lg font-medium hover:from-blue-700 hover:to-blue-900 shadow-lg">
+                <i class="fas fa-file-alt mr-2"></i> Build Your Resume
+            </button>
+            <div class="mt-8 text-sm text-blue-200">Join thousands who've landed their dream jobs with JobHunter</div>
+        </div>
+    </section>
+
+    <!-- Footer with improved layout -->
+    <footer class="bg-gray-900 text-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 py-12">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-briefcase text-xl mr-2 text-blue-400"></i>
+                        <div class="text-xl font-bold">Job<span class="text-blue-400">Hunter</span></div>
+                    </div>
+                    <p class="text-gray-400 mb-4">Your AI-powered career partner for finding the perfect job match.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Job Seekers</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Browse Jobs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Create Resume</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Job Alerts</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Career Advice</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Employers</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Post a Job</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Browse Candidates</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Pricing Plans</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Recruitment Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center"><i class="fas fa-envelope mr-2 text-blue-400"></i> <a href="mailto:contact@jobhunter.com" class="text-gray-400 hover:text-white">contact@jobhunter.com</a></li>
+                        <li class="flex items-center"><i class="fas fa-phone mr-2 text-blue-400"></i> <span class="text-gray-400">+1 (555) 123-4567</span></li>
+                        <li class="flex items-center"><i class="fas fa-map-marker-alt mr-2 text-blue-400"></i> <span class="text-gray-400">123 Career Street, Job City</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="py-4 border-t border-gray-800 text-center">
+                <p class="text-gray-400">&copy; 2025 JobHunter. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
     <script>
+        // Form submission
         function submitForm() {
             document.getElementById('uploadForm').submit();
         }
+        
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
     </script>
 </body> 
 </html>
