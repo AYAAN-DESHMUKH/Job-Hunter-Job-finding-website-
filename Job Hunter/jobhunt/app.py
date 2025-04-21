@@ -139,7 +139,7 @@ def show_jobs():
         return render_template('jobs.html', job_data=scraping_status["job_data"])
     else:
         return redirect(url_for('home'))
-
+#hvhfmhf
 def scrape_naukri(keyword):
     options = Options()
     options.add_argument("--headless")
