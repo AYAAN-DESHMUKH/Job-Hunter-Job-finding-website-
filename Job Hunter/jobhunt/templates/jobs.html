@@ -75,12 +75,22 @@
             color: white;
             font-weight: 500;
         }
+        
+        /* Bookmark icon styles */
+        .bookmark-icon {
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+        .bookmark-icon.active {
+            color: #3b82f6; /* Blue-500 when bookmarked */
+        }
     </style>
     <script>
-        // Function to handle bookmarking
-        function bookmarkJob(jobId) {
+        // Function to handle bookmarking with color change
+        function bookmarkJob(jobId, element) {
             const decodedJobId = decodeURIComponent(jobId);  // Decode the job name
             console.log("Bookmarking job:", decodedJobId);  // Debugging line
+            
             fetch(`/bookmark/${jobId}`, {  // Send the encoded job name
                 method: 'POST',
                 headers: {
@@ -96,16 +106,44 @@
             })
             .then(data => {
                 console.log("Response data:", data); // Debug data
+                
+                // Toggle active class to change the bookmark icon color
+                element.classList.toggle('active');
+                
                 if (data.success) {
                     showNotification('Job bookmarked successfully!', 'success');
                 } else {
-                    showNotification('Failed to bookmark job.', 'error');
+                    // If already bookmarked, we'll still change the color but show the appropriate message
+                    showNotification('You have already bookmarked!', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 showNotification('An error occurred while bookmarking.', 'error');
             });
+        }
+
+        // Function to check if a job is already bookmarked
+        function checkBookmarkStatus() {
+            // Get all bookmark icons
+            const bookmarkIcons = document.querySelectorAll('.bookmark-icon');
+            
+            // Get the list of bookmarked job IDs from localStorage or server
+            // For this example, we'll assume there's an endpoint that returns bookmarked jobs
+            fetch('/get_bookmarked_jobs')
+                .then(response => response.json())
+                .then(data => {
+                    // For each bookmark icon, check if its job is in the bookmarked list
+                    bookmarkIcons.forEach(icon => {
+                        const jobId = icon.getAttribute('data-job-id');
+                        if (data.bookmarked_jobs.includes(jobId)) {
+                            icon.classList.add('active');
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching bookmarked jobs:', error);
+                });
         }
 
         // Function to show themed notifications
@@ -121,6 +159,12 @@
                 notification.remove();
             }, 3000);
         }
+        
+        // Initialize bookmark statuses when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // You can uncomment this when the endpoint is available
+            // checkBookmarkStatus();
+        });
     </script>
 </head>
 <body class="bg-gray-50">
@@ -186,9 +230,11 @@
                             <h3 class="text-xl font-semibold text-gray-800">{{ job.name }}</h3>
                             <p class="text-gray-600">{{ job.location }}</p>
                         </a>
-                        <!-- Bookmark icon at the bottom-right -->
+                        <!-- Bookmark icon at the bottom-right with data attribute for job ID -->
                         <div class="w-full flex justify-end mt-4">
-                            <i class="fas fa-bookmark text-2xl text-gray-700 cursor-pointer hover:text-yellow-500" onclick="bookmarkJob(encodeURIComponent('{{ job.name }}'))"></i>
+                            <i class="fas fa-bookmark bookmark-icon text-2xl text-gray-700 hover:text-blue-500" 
+                               data-job-id="{{ job.name }}"
+                               onclick="bookmarkJob(encodeURIComponent('{{ job.name }}'), this)"></i>
                         </div>
                     </div>
                 {% endfor %}

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loading...</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Background Animation Styles */
         .area {
@@ -62,6 +63,25 @@
                 border-radius: 50%;
             }
         }
+
+        /* Progress bar styles */
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            margin-top: 2rem;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body class="flex justify-center items-center h-screen bg-transparent">
@@ -83,7 +103,7 @@
     <!-- End Background Animation Body -->
 
     <!-- Main Content -->
-    <div class="flex flex-col items-center relative z-10">
+    <div class="flex flex-col items-center relative z-10 px-4 w-full max-w-md">
         <!-- Updated Loader with Blue Colors -->
         <div
             class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#1e40af_0deg,#1e40af_180deg,transparent_180deg,transparent_360deg)]"
@@ -93,28 +113,92 @@
             >
             </span>
         </div>
+        
         <!-- Text -->
-        <p class="mt-4 text-xl font-semibold text-white">Please wait while we find jobs according to your skills...</p>
+        <p class="mt-4 text-xl font-semibold text-white text-center">Please wait while we find jobs according to your skills...</p>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="flex justify-between text-white text-sm mb-2">
+                <span>Progress</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <!-- Partial Results -->
+        <div id="partial-results" class="mt-6 w-full hidden">
+            <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
+                <h3 class="text-white font-medium mb-2">Jobs found so far:</h3>
+                <ul id="jobs-list" class="space-y-2 max-h-40 overflow-y-auto"></ul>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Check scraping status every 2 seconds
+        // Enhanced status checking with progress updates
         function checkScrapingStatus() {
             fetch("/scraping_status")
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
                 .then(data => {
+                    // Update progress
+                    const progressPercent = Math.min(100, Math.max(0, data.progress || 0));
+                    document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+                    document.getElementById('progress-percent').textContent = `${progressPercent}%`;
+                    
+                    // Show partial results if available
+                    if (data.job_data && data.job_data.length > 0) {
+                        updatePartialResults(data.job_data);
+                    }
+                    
+                    // Redirect if complete
                     if (data.status === "complete") {
-                        // Redirect to jobs.html when scraping is complete
                         window.location.href = "/jobs";
                     } else {
-                        // Check again after 2 seconds
-                        setTimeout(checkScrapingStatus, 2000);
+                        // Check again after 1 second (faster updates)
+                        setTimeout(checkScrapingStatus, 1000);
                     }
+                })
+                .catch(error => {
+                    console.error('Error checking status:', error);
+                    // Retry after 2 seconds on error
+                    setTimeout(checkScrapingStatus, 2000);
                 });
         }
 
-        // Start checking scraping status
-        checkScrapingStatus();
+        // Update partial results display
+        function updatePartialResults(jobs) {
+            const container = document.getElementById('partial-results');
+            const list = document.getElementById('jobs-list');
+            
+            // Clear existing items
+            list.innerHTML = '';
+            
+            // Add new items (limit to 5 for display)
+            jobs.slice(0, 5).forEach(job => {
+                const li = document.createElement('li');
+                li.className = 'flex items-start text-white';
+                li.innerHTML = `
+                    <i class="fas fa-briefcase mt-1 mr-2 text-blue-200"></i>
+                    <div>
+                        <div class="font-medium">${job.name}</div>
+                        <div class="text-xs opacity-80">${job.source} • ${job.location}</div>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+            
+            // Show container if not already visible
+            container.classList.remove('hidden');
+        }
+
+        // Start checking scraping status when page loads
+        document.addEventListener('DOMContentLoaded', checkScrapingStatus);
     </script>
 </body>
 </html>

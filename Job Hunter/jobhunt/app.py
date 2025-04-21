@@ -8,39 +8,42 @@ from selenium.webdriver.firefox.options import Options
 import threading
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from concurrent.futures import ThreadPoolExecutor
-from urllib.parse import unquote  # Import unquote for URL decoding
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from urllib.parse import unquote
+from resume_builder.routes import resume_bp
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.secret_key = 'kalsekarkipublic'
 
+app.register_blueprint(resume_bp)
 # Ensure the upload folder exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Global variable to store scraping status and results
-scraping_status = {"status": "idle", "job_data": []}
+scraping_status = {
+    "status": "idle", 
+    "job_data": [],
+    "progress": 0,
+    "total_tasks": 0,
+    "completed_tasks": 0
+}
+
 @app.before_request
 def initialize_bookmarks():
     if 'bookmarks' not in session:
         session['bookmarks'] = []
 
-
-
 @app.route('/bookmark/<job_id>', methods=['POST'])
 def bookmark_job(job_id):
-    decoded_job_id = unquote(job_id)  # Decode the job name
+    decoded_job_id = unquote(job_id)
     if decoded_job_id not in session['bookmarks']:
         session['bookmarks'].append(decoded_job_id)
         session.modified = True
         return jsonify({"success": True})
     return jsonify({"success": False})
 
-
-
-# Route to display bookmarks
 @app.route('/bookmarks')
 def bookmarks():
     bookmarked_jobs = [job for job in scraping_status["job_data"] if job["name"] in session['bookmarks']]
@@ -48,11 +51,9 @@ def bookmarks():
 
 @app.route('/clear_bookmarks', methods=['POST'])
 def clear_bookmarks():
-    session['bookmarks'] = []  # Clear all bookmarks
+    session['bookmarks'] = []
     session.modified = True
     return jsonify({"success": True})
-
-
 
 @app.route('/register')
 def register():
@@ -101,22 +102,24 @@ def upload_resume():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filepath)
         
-        # Extract text from PDF using PdfReader
         reader = PdfReader(filepath)
         text = ''
         for page in reader.pages:
             text += page.extract_text()
         
-        # Extract keywords (this is a simple example, you can use more advanced NLP techniques)
         keywords = ['c++', 'frontend developer', 'backend developer', 'python', 'java', 'javascript', 'react', 'angular', 'node.js', 'sql', 'devops', 'cloud', 'aws', 'azure', 'docker', 'kubernetes']
         found_keywords = [keyword for keyword in keywords if keyword.lower() in text.lower()]
         
-        # Start scraping in the background
         global scraping_status
-        scraping_status = {"status": "in progress", "job_data": []}
-        threading.Thread(target=scrape_jobs, args=(found_keywords,)).start()
+        scraping_status = {
+            "status": "in progress", 
+            "job_data": [],
+            "progress": 0,
+            "total_tasks": len(found_keywords) * 3,  # 3 sites per keyword
+            "completed_tasks": 0
+        }
         
-        # Render the loading screen
+        threading.Thread(target=scrape_jobs, args=(found_keywords,)).start()
         return render_template('loading.html')
     
     return redirect(request.url)
@@ -124,6 +127,9 @@ def upload_resume():
 @app.route('/scraping_status')
 def get_scraping_status():
     global scraping_status
+    # Calculate progress percentage
+    if scraping_status["total_tasks"] > 0:
+        scraping_status["progress"] = int((scraping_status["completed_tasks"] / scraping_status["total_tasks"]) * 100)
     return jsonify(scraping_status)
 
 @app.route('/jobs')
@@ -136,54 +142,52 @@ def show_jobs():
 
 def scrape_naukri(keyword):
     options = Options()
-    options.add_argument("--headless")  # Run in headless mode
-    service = Service()  # Use the default GeckoDriver service
+    options.add_argument("--headless")
+    service = Service()
     driver = webdriver.Firefox(service=service, options=options)
     
-    driver.get(f"https://www.naukri.com/{keyword}-jobs")
-    
-    # Wait for job cards to load
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.title"))
-    )
+    try:
+        driver.get(f"https://www.naukri.com/{keyword}-jobs")
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "a.title"))
+        )
 
-    naukri_name = driver.find_elements(By.CSS_SELECTOR, "a.title")
-    naukri_location = driver.find_elements(By.CSS_SELECTOR, "span.locWdth")
-    
-    jobs = []
-    for name, location in zip(naukri_name[:5], naukri_location[:5]):  
-        jobs.append({
-            "name": name.text, 
-            "location": location.text, 
-            "link": name.get_attribute("href")
-        })
-    
-    driver.quit()
-    return jobs
+        naukri_name = driver.find_elements(By.CSS_SELECTOR, "a.title")
+        naukri_location = driver.find_elements(By.CSS_SELECTOR, "span.locWdth")
+        
+        jobs = []
+        for name, location in zip(naukri_name[:5], naukri_location[:5]):  
+            jobs.append({
+                "name": name.text, 
+                "location": location.text, 
+                "link": name.get_attribute("href"),
+                "source": "Naukri"
+            })
+        
+        return jobs
+    except Exception as e:
+        print(f"Error scraping Naukri: {e}")
+        return []
+    finally:
+        driver.quit()
+        update_progress()
 
 def scrape_fresherworld(keyword):
     options = Options()
-    options.add_argument("--headless")  # Run in headless mode
-    service = Service()  # Use the default GeckoDriver service
+    options.add_argument("--headless")
+    service = Service()
     driver = webdriver.Firefox(service=service, options=options)
     
     try:
         driver.get(f"https://www.freshersworld.com/jobs/jobsearch/{keyword}-jobs")
-        
-        # Wait for job cards to load (update the CSS selector if necessary)
-        try:
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "div.col-md-12.col-lg-12.col-xs-12.padding-none.job-container.jobs-on-hover.top_space"))
-            )
-        except TimeoutException:
-            print(f"Timeout waiting for job cards on Freshersworld for keyword '{keyword}'. Page source: {driver.page_source[:500]}")
-            driver.quit()
-            return []  # Return empty list if job cards aren't found
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.col-md-12.col-lg-12.col-xs-12.padding-none.job-container.jobs-on-hover.top_space"))
+        )
 
         job_cards = driver.find_elements(By.CSS_SELECTOR, "div.col-md-12.col-lg-12.col-xs-12.padding-none.job-container.jobs-on-hover.top_space")
         
         jobs = []
-        for card in job_cards[:5]:  # Limit to 5 jobs
+        for card in job_cards[:5]:
             try:
                 job_name = card.find_element(By.CSS_SELECTOR, "span.wrap-title.seo_title").text
                 job_location = card.find_element(By.CSS_SELECTOR, "a.bold_font").text
@@ -191,67 +195,79 @@ def scrape_fresherworld(keyword):
                 jobs.append({
                     "name": job_name, 
                     "location": job_location, 
-                    "link": job_link
+                    "link": job_link,
+                    "source": "Freshersworld"
                 })
             except Exception as e:
                 print(f"Error extracting job details from Freshersworld: {e}")
         
-        driver.quit()
         return jobs
-    
     except Exception as e:
         print(f"Error in scrape_fresherworld for keyword '{keyword}': {e}")
+        return []
+    finally:
         driver.quit()
-        return []  # Return empty list on failure
+        update_progress()
 
 def scrape_jobsora(keyword):
     options = Options()
-    options.add_argument("--headless")  # Run in headless mode
-    service = Service()  # Use the default GeckoDriver service
+    options.add_argument("--headless")
+    service = Service()
     driver = webdriver.Firefox(service=service, options=options)
     
-    driver.get(f"https://in.jobsora.com/jobs?query={keyword}")
-    
-    # Wait for job cards to load
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.u-text-double-line"))
-    )
+    try:
+        driver.get(f"https://in.jobsora.com/jobs?query={keyword}")
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "a.u-text-double-line"))
+        )
 
-    jobsora_name = driver.find_elements(By.CSS_SELECTOR, "a.u-text-double-line")
-    jobsora_location = driver.find_elements(By.CSS_SELECTOR, "div.c-job-item__info-item")
-    
-    jobs = []
-    for name, location in zip(jobsora_name[:5], jobsora_location[:5]):  
-        jobs.append({
-            "name": name.text, 
-            "location": location.text, 
-            "link": name.get_attribute("href")
-        })
-    
-    driver.quit()
-    return jobs
+        jobsora_name = driver.find_elements(By.CSS_SELECTOR, "a.u-text-double-line")
+        jobsora_location = driver.find_elements(By.CSS_SELECTOR, "div.c-job-item__info-item")
+        
+        jobs = []
+        for name, location in zip(jobsora_name[:5], jobsora_location[:5]):  
+            jobs.append({
+                "name": name.text, 
+                "location": location.text, 
+                "link": name.get_attribute("href"),
+                "source": "Jobsora"
+            })
+        
+        return jobs
+    except Exception as e:
+        print(f"Error scraping Jobsora: {e}")
+        return []
+    finally:
+        driver.quit()
+        update_progress()
+
+def update_progress():
+    global scraping_status
+    scraping_status["completed_tasks"] += 1
+    if scraping_status["total_tasks"] > 0:
+        scraping_status["progress"] = int((scraping_status["completed_tasks"] / scraping_status["total_tasks"]) * 100)
 
 def scrape_jobs(keywords):
     global scraping_status
     job_data = []
     
-    # Use ThreadPoolExecutor for asynchronous scraping
     with ThreadPoolExecutor() as executor:
-        # Scrape Naukri, Freshersworld, and Jobsora concurrently
         futures = []
         for keyword in keywords:
             futures.append(executor.submit(scrape_naukri, keyword))
             futures.append(executor.submit(scrape_jobsora, keyword))
             futures.append(executor.submit(scrape_fresherworld, keyword))
         
-        # Collect results from all threads
-        for future in futures:
-            job_data.extend(future.result())
+        for future in as_completed(futures):
+            try:
+                jobs = future.result()
+                if jobs:
+                    job_data.extend(jobs)
+                    scraping_status["job_data"] = job_data
+            except Exception as e:
+                print(f"Error in scraping task: {e}")
     
-   
-    
-    # Update scraping status
-    scraping_status = {"status": "complete", "job_data": job_data}
+    scraping_status["status"] = "complete"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
